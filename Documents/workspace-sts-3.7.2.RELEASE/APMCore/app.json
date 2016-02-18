@@ -1,0 +1,6 @@
+{
+  "name": "DK Base reference on Heroku",
+  "description": "A reference project to collaborate and develop on Heroku.",
+  "image": "heroku/java",
+  "addons": [ "heroku-postgresql" ]
+}
