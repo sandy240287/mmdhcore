@@ -66,7 +66,7 @@
 				<artifactId>heroku-maven-plugin</artifactId>
 				<version>0.5.7</version>
 				<configuration>
-					<appName>APMCore</appName>
+					<appName>apmcore</appName>
 				</configuration>
 			</plugin>
 		</plugins>
