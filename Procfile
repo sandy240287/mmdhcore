@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp target/classes:target/dependency/* com.apm.Application
+web: java -Dserver.port=$PORT -jar  target/APMCore-0.0.1-SNAPSHOT.jar
