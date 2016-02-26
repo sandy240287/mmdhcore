@@ -1,52 +1,62 @@
 package com.apm.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomAuthenticationProvider implements AuthenticationProvider {
- 
-	UserDetailsService userDetailsService;
-	@Autowired
-    UserDetailsRepository repo;
-    
+public class CustomAuthenticationProvider implements AuthenticationProvider, UserDetailsChecker {
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
+	@Autowired
+	private CustomUserDetailsService userDetailsService;
+	
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+		// Determine username
+		String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
+		String password = authentication.getCredentials().toString();
+
+		UserDetails userdetails = userDetailsService.authticateUserAndGetDetails(username, password);
+		if (userdetails != null) {
+			return new UsernamePasswordAuthenticationToken(username, password, userdetails.getAuthorities());
+		} else {
+			userdetails = userDetailsService.loadUserByUsername(username);
+			if (userdetails != null)
+				throw new BadCredentialsException("BAD_PASSWORD");
+			else
+				throw new UsernameNotFoundException("NOT_FOUND");
+		}
+
 	}
 
 	@Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName();
-        String password = authentication.getCredentials().toString();
-        
-        UserDetails userdetails= repo.authticateUserAndGetDetails(username, password);
-        
-        if (userdetails!=null) {
-            List<GrantedAuthority> grantedAuths = new ArrayList<>();
-            grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
-            Authentication auth = new UsernamePasswordAuthenticationToken(username, password, grantedAuths);
-            return auth;
-        } else {
-            return null;
-        }
-        
-    }
- 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
-    }    
-    
+	public boolean supports(Class<?> authentication) {
+		return authentication.equals(UsernamePasswordAuthenticationToken.class);
+	}
+
+	@Override
+	public void check(UserDetails user) {
+		System.err.println("Inside check");
+		if (!user.isAccountNonLocked()) {
+			throw new LockedException(
+					messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
+		}
+
+		if (!user.isEnabled()) {
+			throw new DisabledException(
+					messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
+		}
+	}
 }

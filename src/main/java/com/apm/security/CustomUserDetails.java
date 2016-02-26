@@ -14,6 +14,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "userdetails")
 public class CustomUserDetails implements UserDetails{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1607037058320546161L;
+
 	@Column(name = "password")
 	private String password;
 
