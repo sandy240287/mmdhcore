@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class AuthSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	@Autowired
 	private CustomUserDetailsService userService;

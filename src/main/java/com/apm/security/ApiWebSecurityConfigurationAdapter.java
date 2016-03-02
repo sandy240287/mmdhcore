@@ -1,11 +1,13 @@
 package com.apm.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -18,12 +20,8 @@ public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 	@Autowired
 	HttpAuthenticationEntryPoint authenticationEntryPoint;
 	@Autowired
-	AuthSuccessHandler authSuccessHandler;
-	@Autowired
-	AuthFailureHandler authFailureHandler;
-	@Autowired
 	HttpLogoutSuccessHandler logoutSuccessHandler;
-
+	
 	@Autowired
 	CustomAuthenticationProvider customAuthenticationProvider;
 
@@ -37,30 +35,29 @@ public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 
 	protected void configure(HttpSecurity http) throws Exception {
 			http
-				.csrf().disable()
+				.addFilterBefore(restFilter(), UsernamePasswordAuthenticationFilter.class)
+				.authorizeRequests().anyRequest().authenticated().and()
 				.authenticationProvider(customAuthenticationProvider)
 				.exceptionHandling()
 				.authenticationEntryPoint(authenticationEntryPoint)
 				.and()
-
+			
 			.formLogin()
 				.permitAll()
 				.loginProcessingUrl("/user/login")
-				.usernameParameter("username")
-				.passwordParameter("password")
-				.successHandler(authSuccessHandler)
-				.failureHandler(authFailureHandler).and()
+				.and()
 			
 			.logout()
 				.permitAll()
-				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 				.logoutSuccessHandler(logoutSuccessHandler)
 				.and()
 				
-				//.addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class)
+				.addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class)
+				.csrf()
+				.disable()
 				//.csrfTokenRepository(csrfTokenRepository())
-				.authorizeRequests().anyRequest().authenticated();
-
+				;
+				
 	}
 
 	private CsrfTokenRepository csrfTokenRepository() {
@@ -68,5 +65,13 @@ public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 		repository.setHeaderName("X-XSRF-TOKEN");
 		return repository;
 	}
+	
+	@Bean 
+	 public JsonUsernamePasswordAuthenticationFilter restFilter() throws Exception { 
+		JsonUsernamePasswordAuthenticationFilter myFilter = new JsonUsernamePasswordAuthenticationFilter(new AntPathRequestMatcher("/user/login")); 
+	     myFilter.setAuthenticationManager(authenticationManager()); 
+	 
+	     return myFilter; 
+	 } 
 
 }
