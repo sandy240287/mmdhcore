@@ -14,11 +14,13 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.apm.service.LoginUserDetailsService;
+
 @Component
 public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 	
 	@Autowired
-	private CustomUserDetailsService userService;
+	private LoginUserDetailsService userService;
     
 	@Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,

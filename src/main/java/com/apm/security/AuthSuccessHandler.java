@@ -15,13 +15,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.apm.service.LoginUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	@Autowired
-	private CustomUserDetailsService userService;
+	private LoginUserDetailsService userService;
 
 	private final ObjectMapper mapper;
 

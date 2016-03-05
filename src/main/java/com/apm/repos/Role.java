@@ -17,32 +17,32 @@ public class Role implements Serializable {
 	private static final long serialVersionUID = -1096205185867751910L;
 
 	@Id
-	@Column(name="\"Role_Id\"", unique=true, nullable=false)
-	private Long role_Id;
+	@Column(name="role_id", unique=true, nullable=false)
+	private Long roleId;
 
-	@Column(name="\"Audit_id\"", nullable=false)
-	private Long audit_id;
+	@Column(name="audit_id", nullable=false)
+	private Long auditId;
 
 	@Column(name="is_active", nullable=false)
 	private Boolean isActive;
 
-	@Column(name="\"Role_name\"", nullable=false)
-	private String role_name;
+	@Column(name="role_name", nullable=false)
+	private String roleName;
 	
-	public Long getRole_Id() {
-		return this.role_Id;
+	public Long getRoleId() {
+		return this.roleId;
 	}
 
-	public void setRole_Id(Long role_Id) {
-		this.role_Id = role_Id;
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
 	}
 
-	public Long getAudit_id() {
-		return this.audit_id;
+	public Long getAuditId() {
+		return this.auditId;
 	}
 
-	public void setAudit_id(Long audit_id) {
-		this.audit_id = audit_id;
+	public void setAuditId(Long auditId) {
+		this.auditId = auditId;
 	}
 
 	public Boolean getIsActive() {
@@ -53,12 +53,12 @@ public class Role implements Serializable {
 		this.isActive = isActive;
 	}
 
-	public String getRole_name() {
-		return this.role_name;
+	public String getRoleName() {
+		return this.roleName;
 	}
 
-	public void setRole_name(String role_name) {
-		this.role_name = role_name;
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
 	}
 
 }

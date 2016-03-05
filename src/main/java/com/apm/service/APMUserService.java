@@ -32,19 +32,9 @@ public class APMUserService {
 
 	@RequestMapping(value = "", produces = "application/json")
 	public List<APMUser> findAll(
-			@RequestParam(value = "fullyLoaded", required = false) String fullyLoaded,
 			@RequestParam(value = "searchByOperator", required = false) String searchByOperator,
 			@RequestParam(value = "firstName", required = false) String firstName,
 			@RequestParam(value = "lastName", required = false) String lastName) {
-
-		if (StringUtils.hasLength(fullyLoaded) && fullyLoaded.trim().equals("TRUE")) {
-			List<APMUser> users = userRepo.findAll();
-			for (APMUser user : users) {
-				loadRolesToUser(user);
-				loadPasswordProfileToAPMUser(user);
-			}
-			return users;
-		}
 
 		if (StringUtils.hasLength(firstName) && StringUtils.hasLength(lastName)
 				&& StringUtils.hasLength(searchByOperator)) {
@@ -61,19 +51,23 @@ public class APMUserService {
 	}
 
 	@RequestMapping(value = "{userId}", produces = "application/json")
-	public APMUser findOne(@PathVariable(value = "userId") Long userId) {
+	public APMUser getUserById(@PathVariable(value = "userId") Long userId) {
 		return userRepo.findOne(userId);
 	}
-
-	private APMUser loadRolesToUser(APMUser user) {
-		List<Role> roles = roleRepo.findAllByUserId(user.getUserId()); 
-		user.setRoles(roles);
-		return user;
+	
+	@RequestMapping(value = Mappings.API_USERS_ROLES_PATH +"/{roleId}", produces = "application/json")
+	public Role getUserRoleByRoleId(@PathVariable(value = "roleId") Long roleId) {
+		return roleRepo.findByRoleId(roleId);
 	}
-	private APMUser loadPasswordProfileToAPMUser(APMUser user) {
-		PasswordProfile profile = passwordProfileRepo.findOne(101L);
-		user.setPasswordProfile(profile);
-		return user;
+	
+	@RequestMapping(value = Mappings.API_USERS_ROLES_PATH, produces = "application/json")
+	public List<Role> getUserRolesById(@PathVariable(value = "userId") Long userId) {
+		return roleRepo.findAllByUserId(userId);
+	}
+	
+	@RequestMapping(value = Mappings.API_USERS_PASSWORDPROFILE_PATH, produces = "application/json")
+	public PasswordProfile getUserPasswordProfileById(@PathVariable(value = "userId") Long userId) {
+		return passwordProfileRepo.findOne(userId);
 	}
 
 }

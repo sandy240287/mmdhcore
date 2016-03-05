@@ -15,15 +15,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	HttpAuthenticationEntryPoint authenticationEntryPoint;
+	APIAuthenticationEntryPoint authenticationEntryPoint;
 	@Autowired
-	HttpLogoutSuccessHandler logoutSuccessHandler;
+	APILogoutSuccessHandler logoutSuccessHandler;
 	
 	@Autowired
-	CustomAuthenticationProvider customAuthenticationProvider;
+	APIAuthenticationProvider customAuthenticationProvider;
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -49,6 +49,7 @@ public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 			
 			.logout()
 				.permitAll()
+				.logoutUrl("/user/logout")
 				.logoutSuccessHandler(logoutSuccessHandler)
 				.and()
 				
@@ -67,8 +68,8 @@ public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 	}
 	
 	@Bean 
-	 public JsonUsernamePasswordAuthenticationFilter restFilter() throws Exception { 
-		JsonUsernamePasswordAuthenticationFilter myFilter = new JsonUsernamePasswordAuthenticationFilter(new AntPathRequestMatcher("/user/login")); 
+	 public APIUsernamePasswordAuthenticationFilter restFilter() throws Exception { 
+		APIUsernamePasswordAuthenticationFilter myFilter = new APIUsernamePasswordAuthenticationFilter(new AntPathRequestMatcher("/user/login")); 
 	     myFilter.setAuthenticationManager(authenticationManager()); 
 	 
 	     return myFilter; 

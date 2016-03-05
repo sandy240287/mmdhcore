@@ -6,6 +6,8 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 
 /**
@@ -22,18 +24,18 @@ public class APMUser implements Serializable {
 	@Column(name = "user_id", unique = true, nullable = false)
 	private Long userId;
 
-	@Column(name = "\"Audit_id\"")
-	private Long audit_id;
+	@Column(name = "audit_id")
+	private Long auditId;
 
 	@Column(name = "first_name", nullable = false)
 	private String firstName;
 
 	@Column(name = "last_name")
-	private Long lastName;
+	private String lastName;
 
 	@Column(name = "middle_name")
-	private Long middleName;
-
+	private String middleName;
+	
 	public Long getUserId() {
 		return this.userId;
 	}
@@ -42,12 +44,12 @@ public class APMUser implements Serializable {
 		this.userId = userId;
 	}
 
-	public Long getAudit_id() {
-		return this.audit_id;
+	public Long getAuditId() {
+		return this.auditId;
 	}
 
-	public void setAudit_id(Long audit_id) {
-		this.audit_id = audit_id;
+	public void setAuditId(Long auditId) {
+		this.auditId = auditId;
 	}
 
 	public String getFirstName() {
@@ -58,23 +60,24 @@ public class APMUser implements Serializable {
 		this.firstName = firstName;
 	}
 
-	public Long getLastName() {
+	public String getLastName() {
 		return this.lastName;
 	}
 
-	public void setLastName(Long lastName) {
+	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
-	public Long getMiddleName() {
+	public String getMiddleName() {
 		return this.middleName;
 	}
 
-	public void setMiddleName(Long middleName) {
+	public void setMiddleName(String middleName) {
 		this.middleName = middleName;
 	}
 
 	@OneToMany(targetEntity=Role.class)
+	@JoinTable(name="user_role", joinColumns = @JoinColumn( name="user_id"), inverseJoinColumns = @JoinColumn( name="role_id"))
 	private List<Role> roles;
 
 	public List<Role> getRoles() {
@@ -84,7 +87,11 @@ public class APMUser implements Serializable {
 	public void setRoles(List<Role> roles) {
 		this.roles = roles;
 	}
-
+	
+	// commented for time being. If fully loaded user object is required, just uncomment it. 
+	/*
+	@OneToOne(targetEntity=PasswordProfile.class) 
+	@JoinColumn(name="user_id")
 	private PasswordProfile passwordProfile;
 
 	public PasswordProfile getPasswordProfile() {
@@ -94,5 +101,5 @@ public class APMUser implements Serializable {
 	public void setPasswordProfile(PasswordProfile passwordProfile) {
 		this.passwordProfile = passwordProfile;
 	}
-
+	*/
 }
