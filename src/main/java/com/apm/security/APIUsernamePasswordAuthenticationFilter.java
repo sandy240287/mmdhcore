@@ -52,6 +52,9 @@ public class APIUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
 		usernameAndPasswordParser.parse();
 		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
 				usernameAndPasswordParser.getTrimmedUsername(), usernameAndPasswordParser.getPassword());
+		
+		// set the supplied username as request attribute. May be used in AuthFailureHandler
+		request.setAttribute(usernameParameter, usernameAndPasswordParser.getTrimmedUsername());
 		return getAuthenticationManager().authenticate(authRequest);
 	}
 	

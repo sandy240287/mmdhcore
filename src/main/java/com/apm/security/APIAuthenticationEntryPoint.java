@@ -10,6 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import com.apm.Mappings;
+
 @Component
 public class APIAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	@Override
@@ -18,7 +20,7 @@ public class APIAuthenticationEntryPoint implements AuthenticationEntryPoint {
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
 		PrintWriter writer = response.getWriter();
-		writer.write("LOGIN_URL:http://[hostname:port]/user/login");
+		writer.write(Mappings.LOGIN_URL);
 		writer.flush();
 
 	}

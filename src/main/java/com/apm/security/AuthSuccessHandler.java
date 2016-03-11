@@ -2,6 +2,7 @@ package com.apm.security;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.GregorianCalendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -11,18 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.apm.service.LoginUserDetailsService;
+import com.apm.repos.APMUserRepository;
+import com.apm.repos.models.APMUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	@Autowired
-	private LoginUserDetailsService userService;
+	private APMUserRepository userRepo;
 
 	private final ObjectMapper mapper;
 
@@ -37,13 +38,13 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 		response.setStatus(HttpServletResponse.SC_OK);
 
 		String name = authentication.getName();
-		UserDetails userDetails = userService.loadUserByUsername(name);
-		// userDetails.setInvalidLoginCount(0);
-		// userDetails.setLastLoginDate(new Date());
-		// userService.update(userDetails);
+		APMUser user = userRepo.findByUsername(name);
+		user.setInvalidLoginCount(0L);
+		user.setLastLoginDate(GregorianCalendar.getInstance().getTime());
+		userRepo.save(user);
 
 		PrintWriter writer = response.getWriter();
-		mapper.writeValue(writer, userDetails);
+		mapper.writeValue(writer, user);
         writer.flush();
 
 	}

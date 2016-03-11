@@ -9,36 +9,38 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.apm.service.LoginUserDetailsService;
+import com.apm.repos.APMUserRepository;
+import com.apm.repos.models.APMUser;
 
 @Component
 public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
-	
+
 	@Autowired
-	private LoginUserDetailsService userService;
-    
+	private APMUserRepository userRepo;
+	
 	@Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException exception) throws IOException, ServletException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        
-        String userName = request.getParameter("username");
-        UserDetails userDetails = null;
-        if(StringUtils.hasLength(userName))
-        	userDetails = userService.loadUserByUsername(userName);
-		
-        if (userDetails != null) {
-			//userDetails.setInvalidLoginCount(user.getInvalidLoginCount() + 1);
-			//userService.update(userDetails);
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+		String lastUserName = (String)request.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY);
+
+		APMUser user = null;
+		if (StringUtils.hasLength(lastUserName))
+			user = userRepo.findByUsername(lastUserName);
+
+		if (user != null) {
+			user.setInvalidLoginCount(user.getInvalidLoginCount() + 1);
+			userRepo.save(user);
 		}
-		
+
 		PrintWriter writer = response.getWriter();
-        writer.write(exception.getMessage());
-        writer.flush();
-    }
+		writer.write(exception.getMessage());
+		writer.flush();
+	}
 }
