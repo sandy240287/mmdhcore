@@ -43,6 +43,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 		user.setLastLoginDate(GregorianCalendar.getInstance().getTime());
 		userRepo.save(user);
 
+		// this is special response 
 		PrintWriter writer = response.getWriter();
 		mapper.writeValue(writer, user);
         writer.flush();

@@ -14,6 +14,7 @@ import com.apm.Mappings;
 import com.apm.repos.VerificationTokenRepository;
 import com.apm.repos.models.APMUser;
 import com.apm.repos.models.VerificationToken;
+import com.apm.service.APMUserService;
 
 @Component
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
@@ -21,10 +22,10 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 	@Value("${email.sender.username}")
 	private String username;
 	
-	@Value("${server.address}")
+	@Value("${apm.server.address}")
 	private String serverAddress;
 	
-	@Value("${server.port}")
+	@Value("${apm.server.port}")
 	private String serverPort;
 	
 	@Value("${apm.server.protocol}")
@@ -51,14 +52,20 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         String recipientAddress = user.getUsername();
         String subject = "Registration Confirmation";
         // Path to set is: http://hostname:port/v1/users/{userId}/registrationConfirm?token=12345
-        String confirmationUrl = StringUtil.replace(Mappings.API_USERS_PATH + Mappings.API_USER_CONFIRM_REGISTRATION, "{userId}", user.getUserId()+"") +"?token="+ token;
+        String confirmationUrl = StringUtil.replace(Mappings.API_USERS_PATH + APMUserService.API_USER_CONFIRM_REGISTRATION, "{userId}", user.getUserId()+"") +"?token="+ token;
         String message = messages.getMessage("message.regSucc");
         SimpleMailMessage email = new SimpleMailMessage();
         email.setFrom(username);
         email.setTo(recipientAddress);
         email.setSubject(subject);
         
-        email.setText(message + serverProtocol +"://"+ serverAddress+":"+serverPort + confirmationUrl);
+        // if serverPort is 80, do not append to the final URL
+        if(serverPort.equals("80"))
+        	message = message + serverProtocol +"://"+ serverAddress + confirmationUrl;
+        else
+        	message = message + serverProtocol +"://"+ serverAddress+":"+serverPort + confirmationUrl;
+
+       	email.setText(message);
         mailSender.send(email);
     }
     

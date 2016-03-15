@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -16,12 +18,21 @@ import org.springframework.util.StringUtils;
 
 import com.apm.repos.APMUserRepository;
 import com.apm.repos.models.APMUser;
+import com.apm.utils.APMResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
 	@Autowired
 	private APMUserRepository userRepo;
+	
+	private final ObjectMapper mapper;
+	
+	@Autowired
+	AuthFailureHandler(@Qualifier("mappingJackson2HttpMessageConverter") MappingJackson2HttpMessageConverter messageConverter) {
+		this.mapper = messageConverter.getObjectMapper();
+	}
 	
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -40,7 +51,9 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 		}
 
 		PrintWriter writer = response.getWriter();
-		writer.write(exception.getMessage());
+		APMResponse apiResponse = new APMResponse("AUTH_FAILURE", exception.getMessage()).error();
+		mapper.writeValue(writer, apiResponse);
 		writer.flush();
+		
 	}
 }

@@ -3,6 +3,7 @@ package com.apm.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,13 +37,18 @@ public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 	protected void configure(HttpSecurity http) throws Exception {
 			http
 				.addFilterBefore(restFilter(), UsernamePasswordAuthenticationFilter.class)
+			.authorizeRequests()
+				// allow user signup using PUT method
+				.antMatchers("/v1/users", HttpMethod.GET.toString()).permitAll()
+		        .antMatchers("/v1/users", HttpMethod.PUT.toString()).permitAll()
+		        .and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.authenticationProvider(customAuthenticationProvider)
 				.exceptionHandling()
 				.authenticationEntryPoint(authenticationEntryPoint)
 				.and()
 			
-			.formLogin()
+		    .formLogin()
 				.permitAll()
 				.loginProcessingUrl("/user/login")
 				.and()

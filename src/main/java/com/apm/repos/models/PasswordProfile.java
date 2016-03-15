@@ -15,25 +15,20 @@ import javax.persistence.Id;
 public class PasswordProfile implements Serializable {
 	
 	private static final long serialVersionUID = 9161951022377668620L;
+	
+	public PasswordProfile(){
+	}
+	
+	public PasswordProfile(Long userId){
+		this.userId = userId;
+	}
 
 	@Id
-	@Column(name="\"Password_Recovery\"", unique=true, nullable=false)
-	private Long password_Recovery;
+	@Column(name="user_id", unique=true, nullable=false)
+	private Long userId;
 
 	@Column(name="audit_id")
 	private Long auditId;
-
-	@Column(name="is_active")
-	private Boolean isActive;
-
-	@Column(name="recovery_token")
-	private String recoveryToken;
-
-	@Column(name="recovery_token_expired_flag")
-	private Long recoveryTokenExpiredFlag;
-
-	@Column(name="recovery_token_valid_upto")
-	private Long recoveryTokenValidUpto;
 
 	@Column(name="secret_answer_1")
 	private String secretAnswer1;
@@ -53,15 +48,12 @@ public class PasswordProfile implements Serializable {
 	@Column(name="secret_question_3")
 	private String secretQuestion3;
 	
-	@Column(name="user_id")
-	private String userId;
-
-	public Long getPassword_Recovery() {
-		return this.password_Recovery;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setPassword_Recovery(Long password_Recovery) {
-		this.password_Recovery = password_Recovery;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public Long getAuditId() {
@@ -70,38 +62,6 @@ public class PasswordProfile implements Serializable {
 
 	public void setAuditId(Long auditId) {
 		this.auditId = auditId;
-	}
-
-	public Boolean getIsActive() {
-		return this.isActive;
-	}
-
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
-	}
-
-	public String getRecoveryToken() {
-		return this.recoveryToken;
-	}
-
-	public void setRecoveryToken(String recoveryToken) {
-		this.recoveryToken = recoveryToken;
-	}
-
-	public Long getRecoveryTokenExpiredFlag() {
-		return this.recoveryTokenExpiredFlag;
-	}
-
-	public void setRecoveryTokenExpiredFlag(Long recoveryTokenExpiredFlag) {
-		this.recoveryTokenExpiredFlag = recoveryTokenExpiredFlag;
-	}
-
-	public Long getRecoveryTokenValidUpto() {
-		return this.recoveryTokenValidUpto;
-	}
-
-	public void setRecoveryTokenValidUpto(Long recoveryTokenValidUpto) {
-		this.recoveryTokenValidUpto = recoveryTokenValidUpto;
 	}
 
 	public String getSecretAnswer1() {

@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -24,7 +25,7 @@ public class VerificationToken {
 	private Date expiryDate;
 	private boolean verified;
 
-	@OneToOne(targetEntity = APMUser.class, fetch = FetchType.EAGER)
+	@OneToOne(targetEntity = APMUser.class, fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(nullable = false, name = "user_id")
 	private APMUser user;
 	

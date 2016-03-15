@@ -95,6 +95,10 @@ public class APMUser implements UserDetails {
 		return username;
 	}
 
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
 	@Override
 	public String getPassword() {
 		return "BLOCKED";
@@ -192,10 +196,27 @@ public class APMUser implements UserDetails {
 		this.locale = locale;
 	}
 
+/*
+	@OneToOne(fetch = FetchType.EAGER, cascade= CascadeType.ALL, targetEntity = PasswordProfile.class)
+	public PasswordProfile passwordProfile;
+	
+	public PasswordProfile getPasswordProfile() {
+		return passwordProfile;
+	}
+
+	public void setPasswordProfile(PasswordProfile passwordProfile) {
+		this.passwordProfile = passwordProfile;
+	}
+*/
+	
 	@OneToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
 	@JoinTable(name = "role_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	@CollectionId(columns = @Column(name = "role_user_id"), type = @Type(type = "long"), generator = "native")
 	List<Role> roles;
+
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -212,9 +233,9 @@ public class APMUser implements UserDetails {
 				setAuths.add(new SimpleGrantedAuthority(userRole.getRoleName()));
 			}
 		}
-		List<GrantedAuthority> Result = new ArrayList<GrantedAuthority>(setAuths);
+		List<GrantedAuthority> result = new ArrayList<GrantedAuthority>(setAuths);
 
-		return Result;
+		return result;
 	}
 
 }

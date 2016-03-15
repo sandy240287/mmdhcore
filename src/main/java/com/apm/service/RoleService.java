@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.apm.Mappings;
 import com.apm.repos.RoleRepository;
 import com.apm.repos.models.Role;
 
 @RestController
 @ExposesResourceFor(Role.class)
-@RequestMapping(Mappings.API_ROLES_PATH)
+@RequestMapping("Roles")
 public class RoleService {
 
 	@Autowired

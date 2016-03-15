@@ -39,9 +39,9 @@ public class APIAuthenticationProvider implements AuthenticationProvider {
 			} else if ((userdetails = userDetailsService.loadUserByUsername(username)) != null) {
 				if (!userdetails.isEnabled())
 					throw new DisabledException("USER_DISABLED");
-				else if (userdetails.isAccountNonExpired())
+				else if (!userdetails.isAccountNonExpired())
 					throw new AccountExpiredException("ACCOUNT_EXPIRED");
-				else if (userdetails.isCredentialsNonExpired())
+				else if (!userdetails.isCredentialsNonExpired())
 					throw new AccountExpiredException("CREDENTIAL_EXPIRED");
 				else
 					throw new BadCredentialsException("BAD_PASSWORD");
