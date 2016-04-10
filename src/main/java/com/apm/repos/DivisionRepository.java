@@ -5,13 +5,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
-import com.apm.repos.models.Capability;
 import com.apm.repos.models.Division;
-import com.apm.repos.models.Role;
+import com.apm.repos.models.Organization;
 
 public interface DivisionRepository extends JpaRepository<Division, Long> {
-	
-	List<Role> findRolesByDivId(@Param("divId") Long divId);
-	List<Capability> findCapabilitiesByDivId(@Param("divId") Long divId);
+
+	List<Division> findDivisionsByOrganization(@Param("organization") Organization organization);
+	Division findDivisionByOrganizationAndDivisionName(@Param("organization") Organization organization, @Param("divisionName") String divisionName);
 
 }

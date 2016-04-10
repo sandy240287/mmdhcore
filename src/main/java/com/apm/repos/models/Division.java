@@ -3,87 +3,90 @@ package com.apm.repos.models;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
+import com.apm.repos.audit.AuditEntity;
+import com.apm.repos.audit.AuditEntityListener;
+import com.apm.utils.JSONView;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * The persistent class for the "division" database table.
  * 
  */
 @Entity(name = "division")
+@EntityListeners(AuditEntityListener.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "divisionId")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+public class Division extends AuditEntity implements Serializable {
 
-public class Division implements Serializable {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1628216357001425688L;
 
 	@Id
-	@Column(name = "div_id", unique = true, nullable = false)
-	private Long divId;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "DIVISION_SEQ")
+	@SequenceGenerator(name = "DIVISION_SEQ", sequenceName = "DIVISION_SEQ", allocationSize = 1)
+	@Column(name = "division_id", unique = true, nullable = false)
+	@JsonView(JSONView.ParentObject.class)
+	private Long divisionId;
 
-	@Column(name = "audit_id")
-	private Long auditId;
+	@Column(name = "division_name", nullable = false)
+	@JsonView(JSONView.ParentObject.class)
+	private String divisionName;
 
-	@Column(name = "div_name", nullable = false)
-	private String divName;
-
-	public Long geDivId() {
-		return this.divId;
+	public Long getDivisionId() {
+		return this.divisionId;
 	}
 
-	public void setDivId(Long divId) {
-		this.divId = divId;
+	public void setDivisionId(Long divisionId) {
+		this.divisionId = divisionId;
 	}
 
-	public Long getAuditId() {
-		return this.auditId;
+	public String getDivisionName() {
+		return this.divisionName;
 	}
 
-	public void setAuditId(Long auditId) {
-		this.auditId = auditId;
+	public void setDivisionName(String divisionName) {
+		this.divisionName = divisionName;
 	}
 
-	public String getDivName() {
-		return this.divName;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "organization_id")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private Organization organization;
+
+	public Organization getOrganization() {
+		return organization;
 	}
 
-	public void setDivName(String divName) {
-		this.divName = divName;
-	}
-	
-	@OneToMany(targetEntity=Role.class)
-	@JoinTable(name="div_role", joinColumns = @JoinColumn( name="div_id"), inverseJoinColumns = @JoinColumn( name="role_id"))
-	@CollectionId(columns=@Column(name="div_role_id"), type=@Type(type="long"), generator = "native")
-	private List<Role> roles;
-	
-	public List<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
-	}
-
-	@OneToMany(targetEntity=Capability.class)
-	@JoinTable(name="div_capability", joinColumns = @JoinColumn( name="div_id"), inverseJoinColumns = @JoinColumn( name="cap_id"))
-	@CollectionId(columns=@Column(name="div_capability_id"), type=@Type(type="long"), generator = "native")
-	private List<Capability> capabilities;
-
-	public List<Capability> getCapabilities() {
-		return this.capabilities;
-	}
-
-	public void setCapabilities(List<Capability> capabilities) {
-		this.capabilities = capabilities;
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 	
+	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "division", fetch = FetchType.LAZY)
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private List<Function> functions;
+
+	public List<Function> getFunctions() {
+		return this.functions;
+	}
+
+	public void setFunctions(List<Function> functions) {
+		this.functions = functions;
+	}
+
+
 }

@@ -9,68 +9,89 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.apm.repos.audit.AuditEntity;
+import com.apm.repos.audit.AuditEntityListener;
+import com.apm.utils.JSONView;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity(name = "apmuser")
-public class APMUser implements UserDetails {
+@EntityListeners(AuditEntityListener.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
+public class APMUser extends AuditEntity implements UserDetails {
 
 	private static final long serialVersionUID = 1607037058320546161L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="APMUSER_SEQ")
+	@SequenceGenerator(name="APMUSER_SEQ",sequenceName="APMUSER_SEQ", allocationSize=1)
 	@Column(name = "user_id")
+	@JsonView(JSONView.ParentObject.class)
 	private Long userId;
 
 	@Column(name = "username", nullable = false)
+	@JsonView(JSONView.ParentObject.class)
 	private String username;
 
-	@Column(name = "password", nullable = false)
+	@Column(name = "password")
 	private String password;
 
-	@Column(name = "audit_id")
-	private Long auditId;
-
-	@Column(name = "first_name", nullable = false)
+	@Column(name = "first_name")
+	@JsonView(JSONView.ParentObject.class)
 	private String firstName;
 
-	@Column(name = "last_name", nullable = false)
+	@Column(name = "last_name")
+	@JsonView(JSONView.ParentObject.class)
 	private String lastName;
 
 	@Column(name = "middle_name")
+	@JsonView(JSONView.ParentObject.class)
 	private String middleName;
 
 	@Column(name = "isAccountNonExpired")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private boolean isAccountNonExpired;
 
 	@Column(name = "isAccountNonLocked")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private boolean isAccountNonLocked;
 
 	@Column(name = "isCredentialsNonExpired")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private boolean isCredentialsNonExpired;
 
 	@Column(name = "isEnabled")
+	@JsonView(JSONView.ParentObject.class)
 	private boolean isEnabled;
 
 	@Column(name = "invalidLoginCount")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Long invalidLoginCount;
 
 	@Column(name = "lastLoginDate")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Date lastLoginDate;
 
 	@Column(name = "locale")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Locale locale;
 
 	public APMUser() {
@@ -86,6 +107,10 @@ public class APMUser implements UserDetails {
 		this.isEnabled = false;
 	}
 
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
 	public Long getUserId() {
 		return userId;
 	}
@@ -98,18 +123,10 @@ public class APMUser implements UserDetails {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	@Override
 	public String getPassword() {
 		return "BLOCKED";
-	}
-
-	public Long getAuditId() {
-		return this.auditId;
-	}
-
-	public void setAuditId(Long auditId) {
-		this.auditId = auditId;
 	}
 
 	public String getFirstName() {
@@ -196,10 +213,11 @@ public class APMUser implements UserDetails {
 		this.locale = locale;
 	}
 
-/*
-	@OneToOne(fetch = FetchType.EAGER, cascade= CascadeType.ALL, targetEntity = PasswordProfile.class)
-	public PasswordProfile passwordProfile;
-	
+	@OneToOne(cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "user_id")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	PasswordProfile passwordProfile;
+
 	public PasswordProfile getPasswordProfile() {
 		return passwordProfile;
 	}
@@ -207,31 +225,44 @@ public class APMUser implements UserDetails {
 	public void setPasswordProfile(PasswordProfile passwordProfile) {
 		this.passwordProfile = passwordProfile;
 	}
-*/
 	
-	@OneToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
-	@JoinTable(name = "role_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	@CollectionId(columns = @Column(name = "role_user_id"), type = @Type(type = "long"), generator = "native")
-	List<Role> roles;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "organization_id")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	Organization organization;
 
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "role_id")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	Role role;
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+	
+	public Role getRole() {
+		return role;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return buildUserAuthority(roles);
+		return buildUserAuthority(role);
 	}
 
-	private List<GrantedAuthority> buildUserAuthority(List<Role> userRoles) {
+	private List<GrantedAuthority> buildUserAuthority(Role userRole) {
 
 		Set<GrantedAuthority> setAuths = new HashSet<GrantedAuthority>();
 
-		if (userRoles != null) {
-			// Build user's authorities
-			for (Role userRole : userRoles) {
-				setAuths.add(new SimpleGrantedAuthority(userRole.getRoleName()));
-			}
+		if (userRole != null) {
+			setAuths.add(new SimpleGrantedAuthority(userRole.getRoleName()));
 		}
 		List<GrantedAuthority> result = new ArrayList<GrantedAuthority>(setAuths);
 

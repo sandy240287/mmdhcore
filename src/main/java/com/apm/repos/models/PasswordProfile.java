@@ -4,64 +4,73 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 
+import com.apm.repos.audit.AuditEntity;
+import com.apm.repos.audit.AuditEntityListener;
+import com.apm.utils.JSONView;
+import com.fasterxml.jackson.annotation.JsonView;
 
 /**
- * The persistent class for the "Password_Recovery" database table.
+ * The persistent class for the "password_profile" database table.
  * 
  */
-@Entity
-public class PasswordProfile implements Serializable {
-	
+@Entity(name = "password_profile")
+@EntityListeners(AuditEntityListener.class)
+public class PasswordProfile extends AuditEntity implements Serializable {
+
 	private static final long serialVersionUID = 9161951022377668620L;
-	
+
+	// default
 	public PasswordProfile(){
+		
 	}
-	
-	public PasswordProfile(Long userId){
+	// init blank
+	public PasswordProfile(Long userId) {
 		this.userId = userId;
+		secretQuestion1 = "";
+		secretAnswer1 = "";
+		secretQuestion2 = "";
+		secretAnswer2 = "";
+		secretQuestion3 = "";
+		secretAnswer3 = "";
 	}
 
 	@Id
-	@Column(name="user_id", unique=true, nullable=false)
+	@Column(name = "user_id", unique = true, nullable = false)
 	private Long userId;
 
-	@Column(name="audit_id")
-	private Long auditId;
-
-	@Column(name="secret_answer_1")
+	@Column(name = "secret_answer_1")
+	@JsonView(JSONView.ParentObject.class)
 	private String secretAnswer1;
 
-	@Column(name="secret_answer_2")
+	@Column(name = "secret_answer_2")
+	@JsonView(JSONView.ParentObject.class)
 	private String secretAnswer2;
 
-	@Column(name="secret_answer_3")
+	@Column(name = "secret_answer_3")
+	@JsonView(JSONView.ParentObject.class)
 	private String secretAnswer3;
 
-	@Column(name="secret_question_1")
+	@Column(name = "secret_question_1")
+	@JsonView(JSONView.ParentObject.class)
 	private String secretQuestion1;
 
-	@Column(name="secret_question_2")
+	@Column(name = "secret_question_2")
+	@JsonView(JSONView.ParentObject.class)
 	private String secretQuestion2;
 
-	@Column(name="secret_question_3")
+	@Column(name = "secret_question_3")
+	@JsonView(JSONView.ParentObject.class)
 	private String secretQuestion3;
-	
+
 	public Long getUserId() {
 		return userId;
 	}
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
-	}
-
-	public Long getAuditId() {
-		return this.auditId;
-	}
-
-	public void setAuditId(Long auditId) {
-		this.auditId = auditId;
 	}
 
 	public String getSecretAnswer1() {
@@ -111,5 +120,5 @@ public class PasswordProfile implements Serializable {
 	public void setSecretQuestion3(String secretQuestion3) {
 		this.secretQuestion3 = secretQuestion3;
 	}
-	
+
 }

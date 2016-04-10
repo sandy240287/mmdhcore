@@ -1,6 +1,5 @@
 package com.apm.service;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -27,26 +26,32 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.apm.Mappings;
 import com.apm.repos.APMUserRepository;
+import com.apm.repos.OrganizationRepository;
 import com.apm.repos.PasswordProfileRepository;
+import com.apm.repos.RoleRepository;
 import com.apm.repos.VerificationTokenRepository;
 import com.apm.repos.models.APMUser;
+import com.apm.repos.models.Organization;
 import com.apm.repos.models.PasswordProfile;
 import com.apm.repos.models.Role;
 import com.apm.repos.models.VerificationToken;
 import com.apm.utils.APMResponse;
+import com.apm.utils.JSONView;
 import com.apm.utils.OnRegistrationCompleteEvent;
+import com.apm.utils.exception.InvalidUserIdNameCombinationException;
 import com.apm.utils.exception.InvalidVerificationTokenException;
-import com.apm.utils.exception.UserExistsException;
-import com.apm.utils.exception.UserNotFoundException;
+import com.apm.utils.exception.MissingMandatoryDataException;
+import com.apm.utils.exception.RecordExistsException;
+import com.apm.utils.exception.RecordNotFoundException;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @ExposesResourceFor(APMUser.class)
-@RequestMapping(Mappings.API_USERS_PATH)
+@RequestMapping(Mappings.API_BASE_PATH)
 public class APMUserService {
 
-	public static final String API_USERS_PATH = Mappings.API_USERS_PATH;
-	public static final String API_USERS_PASSWORDPROFILE_PATH = "/{userId}/passwordProfile";
-	public static final String API_USER_CONFIRM_REGISTRATION = "/{userId}/registrationConfirm";
+	public static final String API_USERS_PASSWORDPROFILE_PATH = "/users/{userId}/passwordProfile";
+	public static final String API_USER_CONFIRM_REGISTRATION = "/users/{userId}/registrationConfirm";
 
 	@Autowired
 	ApplicationEventPublisher eventPublisher;
@@ -56,49 +61,74 @@ public class APMUserService {
 	private PasswordProfileRepository passwordProfileRepo;
 	@Autowired
 	private VerificationTokenRepository verificationTokenRepo;
+	@Autowired
+	private OrganizationRepository orgRepo;
+	@Autowired
+	private RoleRepository roleRepo;
 
 	// GET All Users
 	// GET User by various Search Operations
-	// TODO: Add Like operator
-	@RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+	// Following operators are supported
+	// AND, OR, LIKE
+	//
+	@JsonView(JSONView.ParentObject.class)
+	@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<APMUser> findAll(@RequestParam(value = "searchByOperator", required = false) String searchByOperator,
 			@RequestParam(value = "firstName", required = false) String firstName,
 			@RequestParam(value = "lastName", required = false) String lastName) {
 
-		if (StringUtils.hasLength(firstName) && StringUtils.hasLength(lastName)
-				&& StringUtils.hasLength(searchByOperator)) {
+		if (StringUtils.hasLength(searchByOperator) && StringUtils.hasLength(firstName)
+				&& StringUtils.hasLength(lastName)) {
 			if (searchByOperator.equals("AND"))
 				return userRepo.findByFirstNameAndLastName(firstName, lastName);
 			else if (searchByOperator.equals("OR"))
 				return userRepo.findByFirstNameOrLastName(firstName, lastName);
 		} else if (StringUtils.hasLength(firstName) && !StringUtils.hasLength(lastName)) {
+			if (StringUtils.hasLength(searchByOperator) && searchByOperator.equals("LIKE"))
+				return userRepo.findByFirstNameLike(firstName + "%");
 			return userRepo.findByFirstName(firstName);
 		} else if (!StringUtils.hasLength(firstName) && StringUtils.hasLength(lastName)) {
+			if (StringUtils.hasLength(searchByOperator) && searchByOperator.equals("LIKE"))
+				return userRepo.findByLastNameLike(lastName + "%");
 			return userRepo.findByLastName(lastName);
 		}
 		return userRepo.findAll();
 	}
 
-	// GET User
-	@RequestMapping(value = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	// GET User By Id
+	@JsonView(JSONView.ParentObject.class)
+	@RequestMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public APMUser getUserById(@PathVariable(value = "userId") Long userId) {
 		return userRepo.findOne(userId);
 	}
 
+	// GET User By Id with Child objects
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	@RequestMapping(value = "/users/{userId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+	public APMUser getUserByIdWithChildren(@PathVariable(value = "userId") Long userId) {
+		return userRepo.findOne(userId);
+	}
+
 	// ADD or Register a new User
-	@RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
+	@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
 	@Transactional
-	public @ResponseBody APMResponse addUser(@RequestBody APMUser user)
-			throws UserExistsException, UserNotFoundException, InvalidUserIdNameCombinationException {
+	public @ResponseBody APMResponse addUser(@RequestBody APMUser user) throws RecordExistsException,
+			RecordNotFoundException, InvalidUserIdNameCombinationException, MissingMandatoryDataException {
+
 		validateUserExistance("ADD_USER", user);
 
-		// initialize roles too
-		user.setRoles(new ArrayList<Role>());
+		// validate mandatory fields are supplied
+		if (StringUtils.isEmpty(user.getFirstName()) || StringUtils.isEmpty(user.getLastName())) {
+			throw new MissingMandatoryDataException("MISSING_MANDATORY_DATA",
+					"FirstName and LastName both the mandatory fields");
+		}
 
+		// verify and associate child objects i.e. Org, Role and PasswordProfile
+		associateChildObjects(user);
+		// save the user
 		APMUser addedUser = userRepo.save(user);
-		// also create User's Password profile
-		passwordProfileRepo.save(new PasswordProfile(user.getUserId()));
-
+		// also initialize PasswordProfile
+		passwordProfileRepo.save(new PasswordProfile(addedUser.getUserId()));
 		// now publish the event for sending an email to the user for email
 		// validation
 		if (addedUser != null) {
@@ -108,30 +138,33 @@ public class APMUserService {
 	}
 
 	// UPDATE User
-	@RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-	public @ResponseBody APMResponse updateUser(@RequestBody APMUser user)
-			throws UserNotFoundException, InvalidUserIdNameCombinationException, UserExistsException {
+	@RequestMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	public @ResponseBody APMResponse updateUser(@PathVariable(value = "userId") Long userId, @RequestBody APMUser user)
+			throws InvalidUserIdNameCombinationException, RecordExistsException, RecordNotFoundException, MissingMandatoryDataException {
+
 		// validate the supplied user first
+		user.setUserId(userId);
 		validateUserExistance("UPDATE_USER", user);
+		// validate mandatory fields are supplied
+		if (StringUtils.isEmpty(user.getFirstName()) || StringUtils.isEmpty(user.getLastName())) {
+			throw new MissingMandatoryDataException("MISSING_MANDATORY_DATA",
+					"FirstName and LastName both the mandatory fields");
+		}
+
+		// verify and associate child objects i.e. Org, Role and Password
+		// Profile
+		associateChildObjects(user);
+		// save the user
 		userRepo.save(user);
 		return new APMResponse("USER_UPDATED", "User is updated successfully").success();
 	}
 
 	// DELETE User
-	@RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
+	@RequestMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
 	@Transactional
-	public @ResponseBody APMResponse deleteUser(@RequestBody APMUser user)
-			throws UserNotFoundException, InvalidUserIdNameCombinationException, UserExistsException {
-		// first validate the supplied user
-		validateUserExistance("DELETE_USER", user);
-		// init mandatory fields
-		user.setPassword("");
-		user.setFirstName("");
-		user.setLastName("");
+	public @ResponseBody APMResponse deleteUser(@PathVariable(value = "userId") Long userId) {
 
-		VerificationToken token = verificationTokenRepo.findByUser(user);
-		verificationTokenRepo.delete(token);
-		passwordProfileRepo.delete(user.getUserId());
+		APMUser user = userRepo.findOne(userId);
 		userRepo.delete(user);
 
 		return new APMResponse("USER_DELETED", "User is deleted successfully").success();
@@ -168,37 +201,78 @@ public class APMUserService {
 	@RequestMapping(value = API_USERS_PASSWORDPROFILE_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	public @ResponseBody APMResponse updateUserPasswordProfile(@PathVariable(value = "userId") Long userId,
 			@RequestBody PasswordProfile passwordProfile) {
-		 passwordProfileRepo.save(passwordProfile);
-		 return new APMResponse("PROFILE_UPDATED", "Password Profile is updated successfully").success();
+		passwordProfile.setUserId(userId);
+		passwordProfileRepo.save(passwordProfile);
+		return new APMResponse("PROFILE_UPDATED", "Password Profile is updated successfully").success();
 	}
 
 	private boolean validateUserExistance(String action, APMUser suppliedUser)
-			throws UserNotFoundException, InvalidUserIdNameCombinationException, UserExistsException {
+			throws RecordNotFoundException, InvalidUserIdNameCombinationException, RecordExistsException {
 		boolean proceed = true;
 
 		if (suppliedUser.getUsername() == null || StringUtil.isEmpty(suppliedUser.getUsername()))
-			throw new UserNotFoundException("USERNAME_NOT_SUPPLIED", "Username is mandatory field in the request");
+			throw new RecordNotFoundException("USERNAME_NOT_SUPPLIED", "Username is mandatory field in the request");
 
 		APMUser user = userRepo.findByUsername(suppliedUser.getUsername());
 		if (user != null) {
 			// case of user add
 			if (action.equals("ADD_USER"))
-				throw new UserExistsException("USER_EXISTS",
-						"There is already an account with email address: " + suppliedUser.getUsername());
+				throw new RecordExistsException("USER_EXISTS",
+						"User name " + suppliedUser.getUsername() + " already exists");
 			// case of User update/delete
 			else if (!action.equals("ADD_USER") && user.getUserId() != suppliedUser.getUserId())
 				throw new InvalidUserIdNameCombinationException("USERID_USERNAME_COMBINATION_DOES_NOT_MATCH",
 						"UserId and Username combination does not match");
-		}else if(!action.equals("ADD_USER"))
-			throw new UserNotFoundException("USER_NOT_FOUND",
-					"No account found using this email address: " + suppliedUser.getUsername());
+		} else if (!action.equals("ADD_USER"))
+			throw new RecordNotFoundException("USER_NOT_FOUND",
+					"No account found using this User name: " + suppliedUser.getUsername());
 
 		return proceed;
 	}
 
-	@ExceptionHandler(UserExistsException.class)
+	private void associateChildObjects(APMUser user) throws RecordNotFoundException {
+		if (user.getOrganization() != null) {
+			// check if the organization exists
+			Long organizationId = user.getOrganization().getOrganizationId();
+			Organization organization = orgRepo.findOne(organizationId);
+			if (organization != null)
+				user.setOrganization(organization);
+			else
+				throw new RecordNotFoundException("ORGANIZATION_NOT_FOUND",
+						"No Organization found with supplied OrganizationId");
+		}
+
+		if (user.getRole() != null) {
+			// check if the role exists
+			Long roleId = user.getRole().getRoleId();
+			Role role = roleRepo.findOne(roleId);
+			if (role != null)
+				user.setRole(role);
+			else
+				throw new RecordNotFoundException("ROLE_NOT_FOUND", "No Role found with supplied RoleId");
+		}
+
+		if (user.getPasswordProfile() != null) {
+			// check if the Password Profile exists
+			PasswordProfile passwordProfile = passwordProfileRepo.findOne(user.getUserId());
+			if (passwordProfile != null)
+				user.setPasswordProfile(passwordProfile);
+			else
+				throw new RecordNotFoundException("PASSWORDPROFILE_NOT_FOUND",
+						"No Password Profile found with supplied UserId");
+		}
+	}
+
+	@ExceptionHandler(RecordExistsException.class)
 	@ResponseBody
-	public APMResponse userExistsResponse(UserExistsException ex, HttpServletResponse response) {
+	public APMResponse recordExistsResponse(RecordExistsException ex, HttpServletResponse response) {
+		response.setStatus(HttpStatus.SC_OK);
+		return new APMResponse(ex.getCode(), ex.getMessage()).error();
+	}
+
+	@ExceptionHandler(RecordNotFoundException.class)
+	@ResponseBody
+	public APMResponse recordNotFoundResponse(RecordNotFoundException ex, HttpServletResponse response) {
 		response.setStatus(HttpStatus.SC_OK);
 		return new APMResponse(ex.getCode(), ex.getMessage()).error();
 	}
@@ -210,16 +284,17 @@ public class APMUserService {
 		return new APMResponse(ex.getCode(), ex.getMessage()).error();
 	}
 
-	@ExceptionHandler(UserNotFoundException.class)
+	@ExceptionHandler(InvalidUserIdNameCombinationException.class)
 	@ResponseBody
-	public APMResponse userNotFoundResponse(UserNotFoundException ex, HttpServletResponse response) {
+	public APMResponse invalidUserIdNameCombinationResponse(InvalidUserIdNameCombinationException ex,
+			HttpServletResponse response) {
 		response.setStatus(HttpStatus.SC_OK);
 		return new APMResponse(ex.getCode(), ex.getMessage()).error();
 	}
-	
-	@ExceptionHandler(InvalidUserIdNameCombinationException.class)
+
+	@ExceptionHandler(MissingMandatoryDataException.class)
 	@ResponseBody
-	public APMResponse invalidUserIdNameCombinationResponse(InvalidUserIdNameCombinationException ex, HttpServletResponse response) {
+	public APMResponse missingMandatoryDataResponse(MissingMandatoryDataException ex, HttpServletResponse response) {
 		response.setStatus(HttpStatus.SC_OK);
 		return new APMResponse(ex.getCode(), ex.getMessage()).error();
 	}

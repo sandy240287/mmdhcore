@@ -5,8 +5,6 @@ public final class Mappings {
 	
 	public static final String API_BASE_PATH = "/v1";
 	
-	public static final String API_USERS_PATH = API_BASE_PATH + "/users";
-	
 	public static final String API_ORGANIZATION_PATH = API_BASE_PATH + "/organizations";
 
 	public static final String LOGIN_URL = "LOGIN_URL:http://[hostname:port]/user/login";

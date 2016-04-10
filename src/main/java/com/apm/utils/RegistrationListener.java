@@ -50,9 +50,9 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
          
         //send email to new user
         String recipientAddress = user.getUsername();
-        String subject = "Registration Confirmation";
+        String subject = "APM Registration Confirmation";
         // Path to set is: http://hostname:port/v1/users/{userId}/registrationConfirm?token=12345
-        String confirmationUrl = StringUtil.replace(Mappings.API_USERS_PATH + APMUserService.API_USER_CONFIRM_REGISTRATION, "{userId}", user.getUserId()+"") +"?token="+ token;
+        String confirmationUrl = StringUtil.replace(Mappings.API_BASE_PATH + APMUserService.API_USER_CONFIRM_REGISTRATION, "{userId}", user.getUserId()+"") +"?token="+ token;
         String message = messages.getMessage("message.regSucc");
         SimpleMailMessage email = new SimpleMailMessage();
         email.setFrom(username);

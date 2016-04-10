@@ -6,14 +6,20 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
+import com.apm.repos.audit.AuditEntity;
+import com.apm.repos.audit.AuditEntityListener;
+import com.apm.utils.JSONView;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 
 /**
@@ -21,18 +27,21 @@ import org.hibernate.annotations.Type;
  * 
  */
 @Entity(name = "role")
-public class Role implements Serializable {
+@EntityListeners(AuditEntityListener.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property="roleId")
+public class Role extends AuditEntity implements Serializable {
 	
 	private static final long serialVersionUID = -1096205185867751910L;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ROLE_SEQ")
+	@SequenceGenerator(name = "ROLE_SEQ", sequenceName = "ROLE_SEQ", allocationSize = 1)
 	@Column(name="role_id", unique=true, nullable=false)
+	@JsonView(JSONView.ParentObject.class)
 	private Long roleId;
 
-	@Column(name="audit_id", nullable=false)
-	private Long auditId;
-
 	@Column(name="role_name", nullable=false)
+	@JsonView(JSONView.ParentObject.class)
 	private String roleName;
 	
 	public Long getRoleId() {
@@ -43,14 +52,6 @@ public class Role implements Serializable {
 		this.roleId = roleId;
 	}
 
-	public Long getAuditId() {
-		return this.auditId;
-	}
-
-	public void setAuditId(Long auditId) {
-		this.auditId = auditId;
-	}
-
 	public String getRoleName() {
 		return this.roleName;
 	}
@@ -59,9 +60,8 @@ public class Role implements Serializable {
 		this.roleName = roleName;
 	}
 	
-	@OneToMany(targetEntity=APMUser.class, cascade= CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinTable(name="role_user", joinColumns = @JoinColumn( name="role_id"), inverseJoinColumns = @JoinColumn( name="user_id"))
-	@CollectionId(columns=@Column(name="role_user_id"), type=@Type(type="long"), generator = "native")
+	@OneToMany(mappedBy="role", cascade= CascadeType.REMOVE, fetch = FetchType.LAZY)
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private List<APMUser> users;
 
 	public List<APMUser> getAPMUsers() {

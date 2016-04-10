@@ -6,78 +6,87 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
+import com.apm.repos.audit.AuditEntity;
+import com.apm.repos.audit.AuditEntityListener;
+import com.apm.utils.JSONView;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * The persistent class for the "organization" database table.
  * 
  */
 @Entity(name = "organization")
+@EntityListeners(AuditEntityListener.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "organizationId")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Organization extends AuditEntity implements Serializable {
 
-public class Organization implements Serializable {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8640502776331958667L;
 
 	@Id
-	@Column(name = "org_id", unique = true, nullable = false)
-	private Long orgId;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ORGANIZATION_SEQ")
+	@SequenceGenerator(name = "ORGANIZATION_SEQ", sequenceName = "ORGANIZATION_SEQ", allocationSize = 1)
+	@Column(name = "organization_id", unique = true, nullable = false)
+	@JsonView(JSONView.ParentObject.class)
+	private Long organizationId;
 
-	@Column(name = "audit_id")
-	private Long auditId;
+	@Column(name = "organization_name", nullable = false)
+	@JsonView(JSONView.ParentObject.class)
+	private String organizationName;
 
-	@Column(name = "org_name", nullable = false)
-	private String orgName;
-
-	public Long getOrgId() {
-		return this.orgId;
+	public Long getOrganizationId() {
+		return this.organizationId;
 	}
 
-	public void setOrgId(Long orgId) {
-		this.orgId = orgId;
+	public void setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
 	}
 
-	public Long getAuditId() {
-		return this.auditId;
+	public String getOrganizationName() {
+		return this.organizationName;
 	}
 
-	public void setAuditId(Long auditId) {
-		this.auditId = auditId;
+	public void setOrganizationName(String organizationName) {
+		this.organizationName = organizationName;
 	}
 
-	public String getOrgName() {
-		return this.orgName;
+	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "organization", fetch = FetchType.LAZY)
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private List<APMUser> users;
+
+	public List<APMUser> getAPMUsers() {
+		return this.users;
 	}
 
-	public void setOrgName(String orgName) {
-		this.orgName = orgName;
+	public void setAPMUsers(List<APMUser> users) {
+		this.users = users;
 	}
 
-	/* commenting as Org will never have Roles without a Division
-	@OneToMany(targetEntity = Role.class, cascade=CascadeType.ALL)
-	@JoinTable(name = "org_role", joinColumns = @JoinColumn(name = "org_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	@CollectionId(columns=@Column(name="org_role_id"), type=@Type(type="long"), generator = "native")
-	private List<Role> roleByOrgId;
+	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "organization", fetch = FetchType.LAZY)
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private List<Actor> actors;
 
-	public List<Role> getRoleByOrgId() {
-		return roleByOrgId;
+	public List<Actor> getActors() {
+		return actors;
 	}
 
-	public void setRoleByOrgId(List<Role> roleByOrgId) {
-		this.roleByOrgId = roleByOrgId;
+	public void setActors(List<Actor> actors) {
+		this.actors = actors;
 	}
-	 */
-	@OneToMany(targetEntity = Division.class, cascade=CascadeType.ALL)
-	@JoinTable(name = "org_division", joinColumns = @JoinColumn(name = "org_id"), inverseJoinColumns = @JoinColumn(name = "div_id"))
-	@CollectionId(columns=@Column(name="org_division_id"), type=@Type(type="long"), generator = "native")
+
+	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "organization", fetch = FetchType.LAZY)
+	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private List<Division> divisions;
 
 	public List<Division> getDivisions() {
@@ -87,5 +96,5 @@ public class Organization implements Serializable {
 	public void setDivisions(List<Division> divisions) {
 		this.divisions = divisions;
 	}
-	
+
 }

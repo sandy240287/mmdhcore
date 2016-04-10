@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.apm.repos.models.APMUser;
 
-//@Repository
-//@RepositoryRestResource(path = "users")
 public interface APMUserRepository extends JpaRepository<APMUser, Long> {
 
 	APMUser findOne(Long userId);
@@ -20,9 +18,9 @@ public interface APMUserRepository extends JpaRepository<APMUser, Long> {
 	List<APMUser> findByLastName(String lastName);
 	List<APMUser> findByFirstNameAndLastName(String firstName, String lastName);
 	List<APMUser> findByFirstNameOrLastName(String firstName, String lastName);
-
-	@SuppressWarnings("unchecked")
-	APMUser save(APMUser user);
+	
+	List<APMUser> findByFirstNameLike(String firstName);
+	List<APMUser> findByLastNameLike(String lastName);
 	
 	@Query("select u from apmuser u where u.username = :username")
 	APMUser loadUserByUserName(@Param("username") String username);

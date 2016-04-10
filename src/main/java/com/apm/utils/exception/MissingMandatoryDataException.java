@@ -1,6 +1,6 @@
 package com.apm.utils.exception;
 
-public class APMException  extends Exception {
+public class MissingMandatoryDataException extends Exception {
 
 	/**
 	 * 
@@ -9,9 +9,9 @@ public class APMException  extends Exception {
 
 	private String errorCode;
 
-	public APMException(final String code, final String message) {
+	public MissingMandatoryDataException(final String code, final String message) {
         super(message);
-        this.errorCode = "APM_EXCEPTION";
+        this.errorCode = code;
     }
 
 	public String getCode() {

@@ -41,6 +41,7 @@ public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 				// allow user signup using PUT method
 				.antMatchers("/v1/users", HttpMethod.GET.toString()).permitAll()
 		        .antMatchers("/v1/users", HttpMethod.PUT.toString()).permitAll()
+		        .antMatchers("/v1/users/**/registrationConfirm", HttpMethod.GET.toString()).permitAll()
 		        .and()
 				.authorizeRequests().anyRequest().authenticated().and()
 				.authenticationProvider(customAuthenticationProvider)
