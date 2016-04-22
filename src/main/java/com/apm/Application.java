@@ -5,6 +5,8 @@ import static springfox.documentation.builders.PathSelectors.regex;
 
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.apm.utils.AutowireHelper;
 
+import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
@@ -34,6 +37,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @PropertySource("application.properties")
 @EnableSwagger2
 public class Application {
+	
+	protected static Logger logger = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -69,20 +74,27 @@ public class Application {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	@Bean
 	public Docket api() {
-		return new Docket(DocumentationType.SWAGGER_2).select()
-				.apis(RequestHandlerSelectors.basePackage("com.apm.service")).paths(or(regex(".*/v1.*"))).build();
+		 return new Docket(DocumentationType.SWAGGER_2)
+	                .groupName("APMCore")
+	                .apiInfo(apiInfo())
+	                .select()
+	                .apis(RequestHandlerSelectors.basePackage("com.apm.service"))
+	                .paths(or(regex(".*/v1.*")))
+	                .build();
 	}
 
-	/**
-	 * Method to get ApiInfo object with title patterns and swagger
-	 * group @return ApiInfo
-	 */
 	private ApiInfo apiInfo() {
-		ApiInfo apiInfo = new ApiInfo("APM APIs", "APM API Documentation", "1.0", "http://www.xxxx.com/&#8221;",
-				"test.com", "", "");
-		return apiInfo;
+		return new ApiInfoBuilder()
+                .title("APM Core REST APIs")
+                .description("APM Core API Documentation")
+                .termsOfServiceUrl("http://apmcore.herokuapp.com/apis/terms")
+                .contact("Virender Choudhary")
+                .license("License Type - TDB")
+                .licenseUrl("http://apmcore.herokuapp.com/apis/license")
+                .version("1.0")
+                .build();
 	}
-
 }
