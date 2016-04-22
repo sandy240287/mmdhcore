@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.apm.repos.models.APMUser;
+import com.apm.models.APMUser;
 import com.apm.service.LoginUserDetailsService;
 
 @Component

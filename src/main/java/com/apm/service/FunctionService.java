@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apm.Mappings;
+import com.apm.models.Division;
+import com.apm.models.Function;
 import com.apm.repos.DivisionRepository;
 import com.apm.repos.FunctionRepository;
-import com.apm.repos.models.Division;
-import com.apm.repos.models.Function;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.exception.RecordExistsException;
@@ -41,7 +41,7 @@ public class FunctionService {
 
 	// GET Function
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_FUNCTIONS_PATH + "/{functionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_FUNCTIONS_PATH + "/{functionId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Function getFunctionById(@PathVariable(value = "orgId") Long orgId,
 			@PathVariable(value = "divisionId") Long divisionId, @PathVariable(value = "functionId") Long functionId) {
 		return functionRepo.findOne(functionId);
@@ -50,7 +50,7 @@ public class FunctionService {
 	// GET Function with children
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	@RequestMapping(value = API_FUNCTIONS_PATH
-			+ "/{functionId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+			+ "/{functionId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Function getFunctionByIdWithChildren(@PathVariable(value = "orgId") Long orgId,
 			@PathVariable(value = "divisionId") Long divisionId, @PathVariable(value = "functionId") Long functionId) {
 		return functionRepo.findOne(functionId);
@@ -58,7 +58,7 @@ public class FunctionService {
 
 	// GET Functions by Division
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_FUNCTIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_FUNCTIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<Function> getFunctionsByDivision(@PathVariable(value = "orgId") Long orgId,
 			@PathVariable(value = "divisionId") Long divisionId) {
 

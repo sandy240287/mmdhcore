@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apm.Mappings;
+import com.apm.models.Division;
+import com.apm.models.Organization;
 import com.apm.repos.DivisionRepository;
 import com.apm.repos.OrganizationRepository;
-import com.apm.repos.models.Division;
-import com.apm.repos.models.Organization;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.exception.RecordExistsException;
@@ -40,7 +40,7 @@ public class DivisionService {
 
 	// GET all Divisions By Organization
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_ORGANIZATION_DIVISIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_ORGANIZATION_DIVISIONS_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<Division> getDivisionsByOrganization(@PathVariable(value = "orgId") Long orgId) {
 		// get organization object from repo first
 		Organization organization = orgRepo.getOne(orgId);
@@ -50,7 +50,7 @@ public class DivisionService {
 	// GET Division
 	@JsonView(JSONView.ParentObject.class)
 	@RequestMapping(value = API_ORGANIZATION_DIVISIONS_PATH
-			+ "/{divisionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+			+ "/{divisionId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Division getDivisionById(@PathVariable(value = "divisionId") Long divisionId) {
 		return divisionRepo.findOne(divisionId);
 	}
@@ -58,7 +58,7 @@ public class DivisionService {
 	// GET Division with children
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	@RequestMapping(value = API_ORGANIZATION_DIVISIONS_PATH
-			+ "/{divisionId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+			+ "/{divisionId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Division getDivisionByIdWithChildren(@PathVariable(value = "divisionId") Long divisionId) {
 		return divisionRepo.findOne(divisionId);
 	}

@@ -21,8 +21,7 @@ public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 	@Autowired
 	APIAuthenticationEntryPoint authenticationEntryPoint;
 	@Autowired
-	APILogoutSuccessHandler logoutSuccessHandler;
-	
+	APILogoutSuccessHandler logoutSuccessHandler;	
 	@Autowired
 	APIAuthenticationProvider customAuthenticationProvider;
 
@@ -41,6 +40,12 @@ public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 				// allow user signup using PUT method
 				.antMatchers("/v1/users", HttpMethod.GET.toString()).permitAll()
 		        .antMatchers("/v1/users", HttpMethod.PUT.toString()).permitAll()
+		        // swagger
+		        .antMatchers("/v2/api-docs").permitAll()
+		        .antMatchers("/webjars/**").permitAll()
+		        .antMatchers("/images/**").permitAll()
+		        .antMatchers("/swagger*").permitAll()
+		        
 		        .antMatchers("/v1/users/**/registrationConfirm", HttpMethod.GET.toString()).permitAll()
 		        .and()
 				.authorizeRequests().anyRequest().authenticated().and()

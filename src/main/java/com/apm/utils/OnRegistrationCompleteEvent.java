@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import org.springframework.context.ApplicationEvent;
 
-import com.apm.repos.models.APMUser;
+import com.apm.models.APMUser;
 
 public class OnRegistrationCompleteEvent extends ApplicationEvent {
 	/**

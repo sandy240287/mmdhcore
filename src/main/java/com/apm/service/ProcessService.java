@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apm.Mappings;
+import com.apm.models.Function;
+import com.apm.models.Process;
 import com.apm.repos.FunctionRepository;
 import com.apm.repos.ProcessRepository;
-import com.apm.repos.models.Function;
-import com.apm.repos.models.Process;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.exception.RecordExistsException;
@@ -41,7 +41,7 @@ public class ProcessService {
 
 	// GET Process
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_PROCESSES_PATH + "/{processId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_PROCESSES_PATH + "/{processId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Process getProcessById(@PathVariable(value = "orgId") Long orgId,
 			@PathVariable(value = "divisionId") Long divisionId, @PathVariable(value = "functionId") Long functionId,
 			@PathVariable(value = "processId") Long processId) {
@@ -51,7 +51,7 @@ public class ProcessService {
 	// GET Process with children
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	@RequestMapping(value = API_PROCESSES_PATH
-			+ "/{processId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+			+ "/{processId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Process getProcessByIdWithChildren(@PathVariable(value = "orgId") Long orgId,
 			@PathVariable(value = "divisionId") Long divisionId, @PathVariable(value = "functionId") Long functionId,
 			@PathVariable(value = "processId") Long processId) {
@@ -60,7 +60,7 @@ public class ProcessService {
 
 	// GET Processes by Function
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_PROCESSES_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_PROCESSES_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<Process> getProcesssByFunction(@PathVariable(value = "orgId") Long orgId,
 			@PathVariable(value = "divisionId") Long divisionId, @PathVariable(value = "functionId") Long functionId) {
 

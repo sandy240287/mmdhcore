@@ -25,16 +25,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.apm.Mappings;
+import com.apm.models.APMUser;
+import com.apm.models.Organization;
+import com.apm.models.PasswordProfile;
+import com.apm.models.Role;
+import com.apm.models.VerificationToken;
 import com.apm.repos.APMUserRepository;
 import com.apm.repos.OrganizationRepository;
 import com.apm.repos.PasswordProfileRepository;
 import com.apm.repos.RoleRepository;
 import com.apm.repos.VerificationTokenRepository;
-import com.apm.repos.models.APMUser;
-import com.apm.repos.models.Organization;
-import com.apm.repos.models.PasswordProfile;
-import com.apm.repos.models.Role;
-import com.apm.repos.models.VerificationToken;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.OnRegistrationCompleteEvent;
@@ -72,7 +72,7 @@ public class APMUserService {
 	// AND, OR, LIKE
 	//
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<APMUser> findAll(@RequestParam(value = "searchByOperator", required = false) String searchByOperator,
 			@RequestParam(value = "firstName", required = false) String firstName,
 			@RequestParam(value = "lastName", required = false) String lastName) {
@@ -97,14 +97,14 @@ public class APMUserService {
 
 	// GET User By Id
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public APMUser getUserById(@PathVariable(value = "userId") Long userId) {
 		return userRepo.findOne(userId);
 	}
 
 	// GET User By Id with Child objects
 	@JsonView(JSONView.ParentObjectWithChildren.class)
-	@RequestMapping(value = "/users/{userId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/users/{userId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public APMUser getUserByIdWithChildren(@PathVariable(value = "userId") Long userId) {
 		return userRepo.findOne(userId);
 	}
@@ -192,7 +192,7 @@ public class APMUserService {
 	}
 
 	// GET User's Password Profile
-	@RequestMapping(value = API_USERS_PASSWORDPROFILE_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_USERS_PASSWORDPROFILE_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public PasswordProfile getUserPasswordProfileById(@PathVariable(value = "userId") Long userId) {
 		return passwordProfileRepo.findOne(userId);
 	}

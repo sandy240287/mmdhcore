@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apm.Mappings;
+import com.apm.models.Organization;
 import com.apm.repos.OrganizationRepository;
-import com.apm.repos.models.Organization;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.exception.RecordExistsException;
@@ -37,28 +37,30 @@ public class OrganizationService {
 
 	// GET all Organizations
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_ORGANIZATION_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_ORGANIZATION_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<Organization> getAllOrgs() {
 		return orgRepo.findAll();
 	}
 
 	// GET Org
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_ORGANIZATION_PATH + "/{orgId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_ORGANIZATION_PATH + "/{orgId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Organization getOrgById(@PathVariable(value = "orgId") Long orgId) {
 		return orgRepo.findOne(orgId);
 	}
 
 	// GET Org with Children
 	@JsonView(JSONView.ParentObjectWithChildren.class)
-	@RequestMapping(value = API_ORGANIZATION_PATH + "/{orgId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_ORGANIZATION_PATH
+			+ "/{orgId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Organization getOrgByIdWithChildren(@PathVariable(value = "orgId") Long orgId) {
 		return orgRepo.findOne(orgId);
 	}
 
 	// ADD organization
 	@RequestMapping(value = API_ORGANIZATION_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
-	public @ResponseBody APMResponse addOrganization(@RequestBody Organization organization) throws RecordExistsException {
+	public @ResponseBody APMResponse addOrganization(@RequestBody Organization organization)
+			throws RecordExistsException {
 		if (organizationNameExist(organization.getOrganizationName()))
 			throw new RecordExistsException("ORGANIZATION_EXISTS", "Organization with this name already exist");
 		orgRepo.save(organization);
@@ -66,16 +68,18 @@ public class OrganizationService {
 	}
 
 	// UPDATE organization
-	@RequestMapping(value = API_ORGANIZATION_PATH+"/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-	public @ResponseBody APMResponse updateOrganization(@PathVariable(value = "organizationId") Long organizationId, @RequestBody Organization organization)
-			throws RecordNotFoundException {
+	@RequestMapping(value = API_ORGANIZATION_PATH
+			+ "/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+	public @ResponseBody APMResponse updateOrganization(@PathVariable(value = "organizationId") Long organizationId,
+			@RequestBody Organization organization) throws RecordNotFoundException {
 		organization.setOrganizationId(organizationId);
 		orgRepo.save(organization);
 		return new APMResponse("ORGANIZATION_UPDATED", "Organization is updated successfully").success();
 	}
 
 	// DELETE organization
-	@RequestMapping(value = API_ORGANIZATION_PATH+"/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
+	@RequestMapping(value = API_ORGANIZATION_PATH
+			+ "/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
 	public @ResponseBody APMResponse deleteOrganization(@PathVariable(value = "organizationId") Long organizationId)
 			throws RecordNotFoundException {
 		orgRepo.delete(organizationId);

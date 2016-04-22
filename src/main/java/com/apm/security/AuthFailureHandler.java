@@ -16,8 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.apm.models.APMUser;
 import com.apm.repos.APMUserRepository;
-import com.apm.repos.models.APMUser;
 import com.apm.utils.APMResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

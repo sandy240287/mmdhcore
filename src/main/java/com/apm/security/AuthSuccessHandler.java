@@ -15,8 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.apm.models.APMUser;
 import com.apm.repos.APMUserRepository;
-import com.apm.repos.models.APMUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component

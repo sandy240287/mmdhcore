@@ -2,7 +2,7 @@ package com.apm.repos;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.apm.repos.models.Organization;
+import com.apm.models.Organization;
 
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 

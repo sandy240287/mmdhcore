@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apm.Mappings;
+import com.apm.models.Role;
 import com.apm.repos.RoleRepository;
-import com.apm.repos.models.Role;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.exception.RecordExistsException;
@@ -37,14 +37,14 @@ public class RoleService {
 
 	// GET all Roles
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_ROLE_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_ROLE_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<Role> getAllRoles() {
 		return roleRepo.findAll();
 	}
 
 	// GET Role
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_ROLE_PATH + "/{roleId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = API_ROLE_PATH + "/{roleId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Role getRoleById(@PathVariable(value = "roleId") Long roleId) {
 		return roleRepo.findOne(roleId);
 	}
@@ -52,7 +52,7 @@ public class RoleService {
 	// GET Role with Children
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	@RequestMapping(value = API_ROLE_PATH
-			+ "/{roleId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE)
+			+ "/{roleId}/with-children", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Role getRoleByIdWithChildren(@PathVariable(value = "roleId") Long roleId) {
 		return roleRepo.findOne(roleId);
 	}

@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
-import com.apm.repos.models.Function;
-import com.apm.repos.models.Process;
+import com.apm.models.Function;
+import com.apm.models.Process;
 
 public interface ProcessRepository extends JpaRepository<Process, Long> {
 

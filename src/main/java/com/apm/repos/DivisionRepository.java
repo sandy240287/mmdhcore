@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
-import com.apm.repos.models.Division;
-import com.apm.repos.models.Organization;
+import com.apm.models.Division;
+import com.apm.models.Organization;
 
 public interface DivisionRepository extends JpaRepository<Division, Long> {
 

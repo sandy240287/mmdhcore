@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.apm.models.APMUser;
 import com.apm.repos.APMUserRepository;
-import com.apm.repos.models.APMUser;
 
 @Service
 public class LoginUserDetailsService implements UserDetailsService {

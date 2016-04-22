@@ -11,9 +11,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 import com.apm.Mappings;
+import com.apm.models.APMUser;
+import com.apm.models.VerificationToken;
 import com.apm.repos.VerificationTokenRepository;
-import com.apm.repos.models.APMUser;
-import com.apm.repos.models.VerificationToken;
 import com.apm.service.APMUserService;
 
 @Component
