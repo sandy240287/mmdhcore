@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -15,7 +14,6 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@EnableWebSecurity
 public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -36,10 +34,12 @@ public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 	protected void configure(HttpSecurity http) throws Exception {
 			http
 				.addFilterBefore(restFilter(), UsernamePasswordAuthenticationFilter.class)
-			.authorizeRequests()
+				.authorizeRequests()
 				// allow user signup using PUT method
 				.antMatchers("/v1/users", HttpMethod.GET.toString()).permitAll()
 		        .antMatchers("/v1/users", HttpMethod.PUT.toString()).permitAll()
+		        // allow all OPTIONS method for CORS
+		        .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 		        // swagger
 		        .antMatchers("/v2/api-docs").permitAll()
 		        .antMatchers("/webjars/**").permitAll()
@@ -85,6 +85,10 @@ public class APIWebSecurityConfigurationAdapter extends WebSecurityConfigurerAda
 	     myFilter.setAuthenticationManager(authenticationManager()); 
 	 
 	     return myFilter; 
-	 } 
-
+	 }
+	
+	@Bean 
+	 public CORSFilter corsFilter() throws Exception { 
+		return new CORSFilter(); 
+	 }
 }

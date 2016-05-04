@@ -1,5 +1,6 @@
 package com.apm.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +21,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apm.Mappings;
+import com.apm.models.APMUser;
 import com.apm.models.Organization;
+import com.apm.models.Role;
+import com.apm.repos.APMUserRepository;
 import com.apm.repos.OrganizationRepository;
+import com.apm.repos.RoleRepository;
 import com.apm.utils.APMResponse;
 import com.apm.utils.JSONView;
 import com.apm.utils.exception.RecordExistsException;
@@ -31,12 +37,16 @@ import com.fasterxml.jackson.annotation.JsonView;
 @ExposesResourceFor(Organization.class)
 @RequestMapping(Mappings.API_BASE_PATH)
 public class OrganizationService {
-	
+
 	protected static Logger logger = LoggerFactory.getLogger(OrganizationService.class);
 	public static final String API_ORGANIZATION_PATH = "organizations";
 
 	@Autowired
 	private OrganizationRepository orgRepo;
+	@Autowired
+	private APMUserRepository userRepo;
+	@Autowired
+	private RoleRepository roleRepo;
 
 	// GET all Organizations
 	@JsonView(JSONView.ParentObject.class)
@@ -47,7 +57,8 @@ public class OrganizationService {
 
 	// GET Org
 	@JsonView(JSONView.ParentObject.class)
-	@RequestMapping(value = API_ORGANIZATION_PATH + "/{orgId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+	@RequestMapping(value = API_ORGANIZATION_PATH
+			+ "/{orgId}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public Organization getOrgById(@PathVariable(value = "orgId") Long orgId) {
 		return orgRepo.findOne(orgId);
 	}
@@ -64,8 +75,20 @@ public class OrganizationService {
 	@RequestMapping(value = API_ORGANIZATION_PATH, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.PUT)
 	public @ResponseBody APMResponse addOrganization(@RequestBody Organization organization)
 			throws RecordExistsException {
-		if (organizationNameExist(organization.getOrganizationName()))
+		if (organizationNameExist(organization.getName()))
 			throw new RecordExistsException("ORGANIZATION_EXISTS", "Organization with this name already exist");
+
+		// associate logged in user to the organization as first user
+		String loggedInUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+		APMUser user = userRepo.findByUsername(loggedInUserName);
+		user.setOrganization(organization);
+		// make this user Admin user
+		Role userRole = roleRepo.findByRoleName("ADMIN");
+		user.setRole(userRole);
+
+		List<APMUser> users = new ArrayList<APMUser>();
+		users.add(user);
+		// and now save organization
 		orgRepo.save(organization);
 		return new APMResponse("ORGANIZATION_CREATED", "Organization is created successfully").success();
 	}
@@ -92,7 +115,7 @@ public class OrganizationService {
 
 	// Check if the Organization Already existing in DB
 	private boolean organizationNameExist(String orgName) {
-		Organization org = orgRepo.findByOrganizationName(orgName);
+		Organization org = orgRepo.findByName(orgName);
 		if (org != null) {
 			return true;
 		}

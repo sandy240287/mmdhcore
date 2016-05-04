@@ -63,7 +63,7 @@ public class Process extends AuditEntity implements Serializable {
 		this.processName = processName;
 	}
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="function_id")
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Function function;

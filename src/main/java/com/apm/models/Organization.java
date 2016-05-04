@@ -11,7 +11,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 
 import com.apm.repos.audit.AuditEntity;
@@ -41,9 +43,13 @@ public class Organization extends AuditEntity implements Serializable {
 	@JsonView(JSONView.ParentObject.class)
 	private Long organizationId;
 
-	@Column(name = "organization_name", nullable = false)
+	@Column(name = "name", nullable = false)
 	@JsonView(JSONView.ParentObject.class)
-	private String organizationName;
+	private String name;
+	
+	@Column(name = "alias")
+	@JsonView(JSONView.ParentObject.class)
+	private String alias;
 
 	public Long getOrganizationId() {
 		return this.organizationId;
@@ -53,12 +59,20 @@ public class Organization extends AuditEntity implements Serializable {
 		this.organizationId = organizationId;
 	}
 
-	public String getOrganizationName() {
-		return this.organizationName;
+	public String getName() {
+		return this.name;
 	}
 
-	public void setOrganizationName(String organizationName) {
-		this.organizationName = organizationName;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "organization", fetch = FetchType.EAGER)
@@ -95,6 +109,19 @@ public class Organization extends AuditEntity implements Serializable {
 
 	public void setDivisions(List<Division> divisions) {
 		this.divisions = divisions;
+	}
+	
+	@OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+	@JoinColumn(name = "address_id")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	Address address;
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
 	}
 
 }

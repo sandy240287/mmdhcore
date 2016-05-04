@@ -26,20 +26,22 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
 	@Autowired
 	private APMUserRepository userRepo;
-	
+
 	private final ObjectMapper mapper;
-	
+
 	@Autowired
-	AuthFailureHandler(@Qualifier("mappingJackson2HttpMessageConverter") MappingJackson2HttpMessageConverter messageConverter) {
+	AuthFailureHandler(
+			@Qualifier("mappingJackson2HttpMessageConverter") MappingJackson2HttpMessageConverter messageConverter) {
 		this.mapper = messageConverter.getObjectMapper();
 	}
-	
+
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-		String lastUserName = (String)request.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY);
+		String lastUserName = (String) request
+				.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY);
 
 		APMUser user = null;
 		if (StringUtils.hasLength(lastUserName))
@@ -50,10 +52,20 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 			userRepo.save(user);
 		}
 
+		// allow CORS
+		response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me");
+		// all options request should be returned with 200 OK
+		if(request.getMethod().equalsIgnoreCase("OPTIONS"))
+			response.setStatus(HttpServletResponse.SC_OK);
+
 		PrintWriter writer = response.getWriter();
 		APMResponse apiResponse = new APMResponse("AUTH_FAILURE", exception.getMessage()).error();
 		mapper.writeValue(writer, apiResponse);
 		writer.flush();
-		
+
 	}
 }

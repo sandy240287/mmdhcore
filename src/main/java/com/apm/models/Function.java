@@ -65,7 +65,7 @@ public class Function extends AuditEntity implements Serializable {
 		this.functionName = functionName;
 	}
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="division_id")
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Division division;
@@ -78,7 +78,7 @@ public class Function extends AuditEntity implements Serializable {
 		this.division = division;
 	}
 	
-	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "function", fetch = FetchType.LAZY)
+	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "function", fetch = FetchType.EAGER)
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private List<Process> processes;
 

@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -34,7 +33,7 @@ public class APIUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
 	private String passwordParameter = UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY;
 
 	private ObjectMapper objectMapper = new ObjectMapper();
-	private boolean postOnly = true;
+	//private boolean postOnly = true;
 
 	protected APIUsernamePasswordAuthenticationFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
 		super(requiresAuthenticationRequestMatcher);
@@ -44,9 +43,9 @@ public class APIUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
 		
-		if (this.postOnly && !request.getMethod().equals("POST")) {
-			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
-		}
+		//if (this.postOnly && !request.getMethod().equals("POST")) {
+		//	throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
+		//}
 
 		final UsernameAndPasswordParser usernameAndPasswordParser = new UsernameAndPasswordParser(request);
 		usernameAndPasswordParser.parse();

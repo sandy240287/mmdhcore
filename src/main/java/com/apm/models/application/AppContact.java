@@ -86,7 +86,7 @@ public class AppContact extends AuditEntity implements Serializable {
 		this.application = application;
 	}
 
-	@OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	@OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
 	@JoinColumn(name = "contact_id")
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Contact contact;

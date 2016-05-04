@@ -85,7 +85,7 @@ public class VerificationToken extends AuditEntity implements Serializable {
 		this.verified = verified;
 	}
 
-	@OneToOne(targetEntity = APMUser.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	@OneToOne(targetEntity = APMUser.class, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	@JoinColumn(nullable = false, name = "token_id")
 	private APMUser user;
 

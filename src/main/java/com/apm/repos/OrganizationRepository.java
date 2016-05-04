@@ -6,6 +6,6 @@ import com.apm.models.Organization;
 
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 
-	Organization findByOrganizationName(String organizationName);
+	Organization findByName(String organizationName);
 
 }

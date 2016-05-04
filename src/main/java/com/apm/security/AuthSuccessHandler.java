@@ -28,7 +28,8 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 	private final ObjectMapper mapper;
 
 	@Autowired
-	AuthSuccessHandler(@Qualifier("mappingJackson2HttpMessageConverter") MappingJackson2HttpMessageConverter messageConverter) {
+	AuthSuccessHandler(
+			@Qualifier("mappingJackson2HttpMessageConverter") MappingJackson2HttpMessageConverter messageConverter) {
 		this.mapper = messageConverter.getObjectMapper();
 	}
 
@@ -43,10 +44,20 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 		user.setLastLoginDate(GregorianCalendar.getInstance().getTime());
 		userRepo.save(user);
 
-		// this is special response 
+		// allow CORS
+		response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me");
+		// all options request should be returned with 200 OK
+		if (request.getMethod().equalsIgnoreCase("OPTIONS"))
+			response.setStatus(HttpServletResponse.SC_OK);
+
+		// this is special response
 		PrintWriter writer = response.getWriter();
 		mapper.writeValue(writer, user);
-        writer.flush();
+		writer.flush();
 
 	}
 }

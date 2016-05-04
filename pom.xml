@@ -61,9 +61,17 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.2.2</version>
 		</dependency>
+		<!-- Sendgrid -->
 		<dependency>
 			<groupId>com.sendgrid</groupId>
 			<artifactId>sendgrid-java</artifactId>
+		</dependency>
+		<!-- Rest SVC Test -->
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>spring-mock-mvc</artifactId>
+			<version>2.9.0</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

@@ -65,7 +65,7 @@ public class Division extends AuditEntity implements Serializable {
 		this.divisionName = divisionName;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "organization_id")
 	@JsonView(JSONView.ParentObjectWithChildren.class)
 	private Organization organization;

@@ -1,0 +1,17 @@
+/*Reference data setup file. It creates records in the "ref_data" database table.*/
+"RefData":{
+	"field":[{
+		"dataKey":"1",
+		"dataValue":""
+	},
+	{
+		"dataKey":"2",
+		"dataValue":""
+	},
+	{
+		"dataKey":"3",
+		"dataValue":""
+	}
+	]
+}
+

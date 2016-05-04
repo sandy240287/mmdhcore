@@ -14,11 +14,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.apm.utils.AutowireHelper;
@@ -35,7 +33,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableJpaRepositories("com.apm.repos")
 @EnableJpaAuditing
 @PropertySource("application.properties")
+@EnableWebSecurity
 @EnableSwagger2
+
 public class Application {
 	
 	protected static Logger logger = LoggerFactory.getLogger(Application.class);
@@ -62,16 +62,6 @@ public class Application {
 	@Bean
 	public AutowireHelper autowireHelper() {
 		return AutowireHelper.getInstance();
-	}
-
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurerAdapter() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("https://apmui.herokuapp.com, http://localhost:8080");
-			}
-		};
 	}
 
 	@SuppressWarnings("unchecked")
