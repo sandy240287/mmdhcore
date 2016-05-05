@@ -45,8 +45,6 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
 	@Autowired
 	private MessageByLocaleService messages;
-	//@Autowired
-	//private JavaMailSender mailSender;
 	
 	@Autowired
 	private VerificationTokenRepository tokenRepo;
@@ -76,18 +74,6 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 		else
 			emailMessage = emailMessage + serverProtocol + "://" + serverAddress + ":" + serverPort + confirmationUrl;
 
-		
-		/* commented to use SendGrid instead
-		 * however downside of sendgrid is that messages land in span due to Yahoo's policy
-		 * 
-		SimpleMailMessage email = new SimpleMailMessage();
-		email.setFrom(username);
-		email.setTo(recipientEmail);
-		email.setSubject(subject);
-		email.setText(emailMessage);
-		mailSender.send(email);
-		 */
-		
 		// sendgrid email
 		SendGrid sendgrid = new SendGrid(sendgridApiKey);
 
