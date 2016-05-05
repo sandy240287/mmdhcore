@@ -24,9 +24,6 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
 	protected static Logger logger = LoggerFactory.getLogger(RegistrationListener.class);
 
-	@Value("${email.sender.username}")
-	private String username;
-
 	@Value("${apm.server.address}")
 	private String serverAddress;
 
