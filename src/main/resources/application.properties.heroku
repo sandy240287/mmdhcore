@@ -21,6 +21,7 @@ spring.datasource.driverClassName=org.postgresql.Driver
 spring.jpa.database-platform = org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.show-sql = true
 spring.jpa.hibernate.ddl-auto= update
+#spring.jpa.hibernate.ddl-auto= create-drop
 
 spring.data.rest.base-path=v1
 logging.level.org.springframework.jpa=DEBUG
@@ -29,3 +30,7 @@ email.host=smtp.mail.yahoo.com
 email.port=587
 email.sender.username=ch_virender@yahoo.com
 email.sender.password=Silverchair23
+
+spring.sendgrid.username=Virender Choudhary
+spring.sendgrid.password=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
+apm.sendgrid.sender.email=admin@apm.com
