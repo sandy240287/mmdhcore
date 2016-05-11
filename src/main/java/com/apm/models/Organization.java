@@ -51,6 +51,34 @@ public class Organization extends AuditEntity implements Serializable {
 	@JsonView(JSONView.ParentObject.class)
 	private String alias;
 
+	@Column(name = "description")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private String description;
+
+	@Column(name = "phone1")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private String phone1;
+
+	@Column(name = "phone2")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private String phone2;
+
+	@Column(name = "email")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private String email;
+
+	@Column(name = "website")
+	@JsonView(JSONView.ParentObjectWithChildren.class)
+	private String website;
+
+	public List<APMUser> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<APMUser> users) {
+		this.users = users;
+	}
+
 	public Long getOrganizationId() {
 		return this.organizationId;
 	}
@@ -73,6 +101,46 @@ public class Organization extends AuditEntity implements Serializable {
 
 	public void setAlias(String alias) {
 		this.alias = alias;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getPhone1() {
+		return phone1;
+	}
+
+	public void setPhone1(String phone1) {
+		this.phone1 = phone1;
+	}
+
+	public String getPhone2() {
+		return phone2;
+	}
+
+	public void setPhone2(String phone2) {
+		this.phone2 = phone2;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
 	}
 
 	@OneToMany(cascade = CascadeType.REMOVE, mappedBy = "organization", fetch = FetchType.EAGER)
