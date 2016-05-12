@@ -37,11 +37,11 @@ public class Address extends AuditEntity implements Serializable {
 	@JsonView(JSONView.ParentObject.class)
 	private Long addressId;
 	
-	@Column(name = "street", nullable = false)
+	@Column(name = "street")
 	@JsonView(JSONView.ParentObject.class)
 	private String street;
 
-	@Column(name = "city", nullable = false)
+	@Column(name = "city")
 	@JsonView(JSONView.ParentObject.class)
 	private String city;
 

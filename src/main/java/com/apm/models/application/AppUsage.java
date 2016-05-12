@@ -39,17 +39,17 @@ public class AppUsage extends AuditEntity implements Serializable {
 	@JsonView(JSONView.ParentObject.class)
 	private Long appUsageId;
 
-	@Column(name = "users_count", nullable = false)
+	@Column(name = "users_count")
 	@JsonView(JSONView.ParentObject.class)
-	private String usersCount;
+	private long usersCount;
 
-	@Column(name = "concurrent_users_count", nullable = false)
+	@Column(name = "concurrent_users_count")
 	@JsonView(JSONView.ParentObject.class)
-	private String concurrentUsersCount;
+	private long concurrentUsersCount;
 
 	@Column(name = "transactions_count")
 	@JsonView(JSONView.ParentObject.class)
-	private String transactionsCount;
+	private long transactionsCount;
 
 	@Column(name = "region")
 	@JsonView(JSONView.ParentObject.class)
@@ -70,28 +70,28 @@ public class AppUsage extends AuditEntity implements Serializable {
 	public void setAppUsageId(Long appUsageId) {
 		this.appUsageId = appUsageId;
 	}
-
-	public String getUsersCount() {
+	
+	public long getUsersCount() {
 		return usersCount;
 	}
 
-	public void setUsersCount(String usersCount) {
+	public void setUsersCount(long usersCount) {
 		this.usersCount = usersCount;
 	}
 
-	public String getConcurrentUsersCount() {
+	public long getConcurrentUsersCount() {
 		return concurrentUsersCount;
 	}
 
-	public void setConcurrentUsersCount(String concurrentUsersCount) {
+	public void setConcurrentUsersCount(long concurrentUsersCount) {
 		this.concurrentUsersCount = concurrentUsersCount;
 	}
 
-	public String getTransactionsCount() {
+	public long getTransactionsCount() {
 		return transactionsCount;
 	}
 
-	public void setTransactionsCount(String transactionsCount) {
+	public void setTransactionsCount(long transactionsCount) {
 		this.transactionsCount = transactionsCount;
 	}
 

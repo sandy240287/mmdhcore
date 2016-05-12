@@ -44,47 +44,47 @@ public class AppDeployment extends AuditEntity implements Serializable {
 	@JsonView(JSONView.ParentObject.class)
 	private String originallyDevelopedAt;
 
-	@Column(name = "original_deployment_date", nullable = false)
+	@Column(name = "original_deployment_date")
 	@JsonView(JSONView.ParentObject.class)
 	private Date originalDeploymentDate;
 
-	@Column(name = "last_deployment_date", nullable = false)
+	@Column(name = "last_deployment_date")
 	@JsonView(JSONView.ParentObject.class)
 	private Date lastDeploymentDate;
 
-	@Column(name = "managed_type", nullable = false)
+	@Column(name = "managed_type")
 	@JsonView(JSONView.ParentObject.class)
 	private String managedType;
 
-	@Column(name = "interfaces_count_in", nullable = false)
+	@Column(name = "interfaces_count_in")
 	@JsonView(JSONView.ParentObject.class)
 	private String interfacesCountIN;
 
-	@Column(name = "interfaces_count_out", nullable = false)
+	@Column(name = "interfaces_count_out")
 	@JsonView(JSONView.ParentObject.class)
 	private String interfacesCountOUT;
 
-	@Column(name = "software_platform_type", nullable = false)
+	@Column(name = "software_platform_type")
 	@JsonView(JSONView.ParentObject.class)
 	private String softwarePlatformType;
 
-	@Column(name = "database_platform", nullable = false)
+	@Column(name = "database_platform")
 	@JsonView(JSONView.ParentObject.class)
 	private String databasePlatform;
 
-	@Column(name = "hardware_platform", nullable = false)
+	@Column(name = "hardware_platform")
 	@JsonView(JSONView.ParentObject.class)
 	private String hardwarePlatform;
 
-	@Column(name = "organization_asset_id", nullable = false)
+	@Column(name = "organization_asset_id")
 	@JsonView(JSONView.ParentObject.class)
 	private String organizationAssetId;
 
-	@Column(name = "recovery_point_obj", nullable = false)
+	@Column(name = "recovery_point_obj")
 	@JsonView(JSONView.ParentObject.class)
 	private String recoveryPointObj;
 
-	@Column(name = "recovery_time_obj", nullable = false)
+	@Column(name = "recovery_time_obj")
 	@JsonView(JSONView.ParentObject.class)
 	private String recoveryTimeObj;
 
