@@ -1,9 +1,9 @@
 # See http://docs.spring.io/spring-boot/docs/1.1.4.RELEASE/reference/htmlsingle/#boot-features-external-config-profile-specific-properties
 # for more details about creating profile-specific property files
 
-apm.server.port=8080
-apm.server.address=localhost
-apm.server.protocol=http
+mmdh.server.port=8080
+mmdh.server.address=localhost
+mmdh.server.protocol=http
 
 # See http://docs.spring.io/spring-boot/docs/1.1.4.RELEASE/reference/htmlsingle/#howto-initialize-a-database-using-jpa
 # for more details and options on initializing a production database
@@ -28,4 +28,4 @@ logging.level.org.springframework.jpa=DEBUG
 
 spring.sendgrid.username=Virender Choudhary
 spring.sendgrid.password=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
-apm.sendgrid.sender.email=admin@apm.com
+apm.sendgrid.sender.email=admin@mmdh.com
